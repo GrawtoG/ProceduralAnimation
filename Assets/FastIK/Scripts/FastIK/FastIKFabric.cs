@@ -48,10 +48,16 @@ namespace DitzelGames.FastIK
         protected Quaternion StartRotationTarget;
         protected Transform Root;
 
+        public stonLegMove legMoveScript;
 
         // Start is called before the first frame update
         void Awake()
         {
+            //start:
+            if (Target == null)
+            {
+                Initialize();
+            }
             Init();
         }
 
@@ -109,7 +115,10 @@ namespace DitzelGames.FastIK
 
 
         }
-
+        private void Initialize()
+        {
+            Target = legMoveScript.targetTransform;
+        }
         // Update is called once per frame
         void LateUpdate()
         {

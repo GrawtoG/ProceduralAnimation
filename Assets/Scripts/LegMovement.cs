@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LegMove : MonoBehaviour
+public class LegMovement : MonoBehaviour
 {
     [Tooltip("Leg's IK target")]
     public Transform targetTransform;
@@ -17,15 +17,17 @@ public class LegMove : MonoBehaviour
     [Tooltip("If you want leg move only when opposite leg is grounded, check it")]
     public bool moveWhenGrounded;
     [Tooltip("Oposite leg, assign if you have checked 'moveWhenGrounded'")]
-    public LegMovement oppositeLegMovement1;
-    public LegMovement oppositeLegMovement2;
+    public LegMovement[] oppositeLegMovement;
+
     public bool isUp = false;
-    public int smoothness = 1;
+    private bool oppositeLegsUp;
     private float startTime;
-    public float stepHeight = 0.15f;
+
     Vector3 endPos;
     Vector3 startPos;
-
+    Vector3 centerPoint;
+    Vector3 startRelCenter;
+    Vector3 endRelCenter;
     void Awake()
     {
         RaycastHit hit;
@@ -39,10 +41,23 @@ public class LegMove : MonoBehaviour
         RaycastHit hit;
         Physics.Raycast(rootTransform.position, rootTransform.TransformDirection(Vector3.down), out hit, maxDistFromGround);
         endPos = hit.point;
+        if(hit.collider == null)
+        {
+
+            targetTransform.localPosition = new Vector3(0, 1, 0);
+        }
         if (moveWhenGrounded)
         {
-            if (Vector3.Distance(targetTransform.position, endPos) > maxDistToLeg && isUp == false && !oppositeLegMovement1.isUp && !oppositeLegMovement2.isUp)
+            for (int i = 0; i < oppositeLegMovement.Length; i++)
             {
+                if (oppositeLegMovement[i].isUp)
+                {
+                    oppositeLegsUp = false;
+                }
+            }
+            if (Vector3.Distance(targetTransform.position, endPos) > maxDistToLeg && isUp == false &&!oppositeLegsUp)
+            {
+                oppositeLegsUp = true;
                 isUp = true;
                 startPos = targetTransform.position;
                 startTime = Time.time;
@@ -59,38 +74,36 @@ public class LegMove : MonoBehaviour
 
             }
         }
-
-        if (isUp == true)
-        {
-            StartCoroutine(PerformStep());   
-        }
         
-    }
-    IEnumerator PerformStep()
-    {
-        for(int i = 1;i<= smoothness; i++)
+        if(isUp == true)
         {
-            targetTransform.position = Vector3.Lerp(startPos, endPos, i / (float)(smoothness + 1f));
-            targetTransform.position += transform.up * Mathf.Sin(i / (float)(smoothness + 1f) * Mathf.PI) * stepHeight;
-            yield return new WaitForFixedUpdate();
-            Debug.Log("forek" + i);
+            GetCenter(Vector3.up);
+            float fracComplete = Mathf.PingPong(Time.time - startTime, journeyTime / speed);
+            targetTransform.position = Vector3.Slerp(startRelCenter, endRelCenter, fracComplete * speed);
+            targetTransform.position += centerPoint;
+            if (fracComplete >= 1)
+            {
+                startTime = Time.time;
+            }
         }
-        Debug.Log("cykesn po forze");
-        targetTransform.position = endPos;
-        isUp = false;
-
+        if (Vector3.Distance(targetTransform.position, endPos) < minDistToStep)
+        {
+            isUp = false;
+        }
     }
-    private void OnDrawGizmos()
+    void GetCenter(Vector3 direction)
     {
-        Gizmos.color = Color.green;
-        Debug.DrawRay(rootTransform.position, rootTransform.TransformDirection(Vector3.down), Color.green);
+        centerPoint = (startPos + endPos);
+        centerPoint -= direction;
+        startRelCenter = startPos - centerPoint;
+        endRelCenter = endPos - centerPoint;
+
+
+
+
+
     }
-
-
-
-
-
-
-
-
 }
+
+
+
