@@ -6,6 +6,7 @@ public class stonLegMove : MonoBehaviour
 {
     [Tooltip("Leg's IK target")]
     public Transform targetTransform;
+    public Vector3 targetStartPositionOffset;
     [Tooltip("GameObject(position) from wchich raycast(that determinates leg's position to move) starts")]
     public Transform rootTransform;
     public float minDistToStep = 0.05f;
@@ -17,17 +18,20 @@ public class stonLegMove : MonoBehaviour
     [Tooltip("If you want leg move only when opposite leg is grounded, check it")]
     public bool moveWhenGrounded;
     [Tooltip("Oposite leg, assign if you have checked 'moveWhenGrounded'")]
-    public LegMove[] oppositeLegMovement;
+    public stonLegMove oppositeLegMovement;
 
     public bool isUp = false;
     bool goUp = false;
     public float legUp = 1f;
-    private bool oppositeLegsUp;
-
+   
+    public bool canMove = false;
     Vector3 endPos;
+    Vector3 startEndPos;
     Vector3 startPos;
     Vector3 halfPos;
+    Vector3 startHalfPos;
     public GameObject targetPrefab;
+   
 
     void Awake()
     {
@@ -36,7 +40,7 @@ public class stonLegMove : MonoBehaviour
 
         RaycastHit hit;
         Physics.Raycast(rootTransform.position, rootTransform.TransformDirection(Vector3.down), out hit, maxDistFromGround);
-        targetTransform.position = hit.point;
+        targetTransform.localPosition = hit.point+targetStartPositionOffset;
         isUp = false;
         goUp = false;
     }
@@ -47,26 +51,24 @@ public class stonLegMove : MonoBehaviour
      
         RaycastHit hit;
         Physics.Raycast(rootTransform.position, rootTransform.TransformDirection(Vector3.down), out hit, maxDistFromGround);
-        endPos = hit.point;
+        
+        
+         endPos = hit.point;
+        
+        
         if (hit.collider == null)
         {
 
             targetTransform.position = transform.parent.position;
         }
         if (moveWhenGrounded)
-        {
-            for (int i = 0; i < oppositeLegMovement.Length; i++)
+        {                         
+            if (Vector3.Distance(targetTransform.position, endPos) > maxDistToLeg && isUp == false&&canMove)
             {
-                if (oppositeLegMovement[i].isUp)
-                {
-                    oppositeLegsUp = false;
-                }
-            }
-            if (Vector3.Distance(targetTransform.position, endPos) > maxDistToLeg && isUp == false && !oppositeLegsUp)
-            {
-                oppositeLegsUp = true;
+                canMove = false;
                 startPos = targetTransform.position;
-                GetHalfPos();
+                startEndPos= endPos;
+                startHalfPos = transform.position;
                 isUp = true;
                 goUp = true;
 
@@ -78,7 +80,8 @@ public class stonLegMove : MonoBehaviour
             if (Vector3.Distance(targetTransform.position, endPos) > maxDistToLeg && isUp == false)
             {
                 startPos = targetTransform.position;
-                GetHalfPos();
+                startEndPos = endPos; 
+                startHalfPos = transform.position;
                 isUp = true;
                 goUp = true;
 
@@ -88,6 +91,7 @@ public class stonLegMove : MonoBehaviour
 
         if (isUp && goUp)
         {
+            GetHalfPos();
             targetTransform.Translate((halfPos - targetTransform.position).normalized * Time.deltaTime * speed, Space.World);
             if (Vector3.Distance(targetTransform.position, halfPos) < minDistToStep)
             {
@@ -96,18 +100,23 @@ public class stonLegMove : MonoBehaviour
         }
         if (isUp && !goUp)
         {
+            GetHalfPos();
             targetTransform.Translate((endPos - targetTransform.position).normalized * Time.deltaTime * speed, Space.World);
             if (Vector3.Distance(targetTransform.position, endPos) < minDistToStep)
             {
                 isUp = false;
+                oppositeLegMovement.canMove = true;
             }
         }
 
     }
     void GetHalfPos()
     {
+
         halfPos = startPos + (endPos - startPos) * 0.5f;
+        
         halfPos += new Vector3(0, legUp, 0);
+        halfPos += (transform.position - startHalfPos);
     }
 
     private void OnDrawGizmos()

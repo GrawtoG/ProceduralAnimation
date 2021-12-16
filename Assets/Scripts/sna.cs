@@ -33,7 +33,7 @@ public class sna : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         RotateParts();
         if (Input.GetKey(KeyCode.W))
@@ -47,11 +47,13 @@ public class sna : MonoBehaviour
     }
     public void RotateParts()
     {
-
+        
         for (int i = 1; i < bodyParts.Count; i++)
         {
             //bodyParts[i].rotation = Quaternion.RotateTowards(bodyParts[i].rotation, bodyParts[i - 1].rotation, quaternionSpeed * Time.deltaTime * 50);
-            bodyParts[i].LookAt(bodyParts[i - 1]);
+            //bodyParts[i].LookAt(bodyParts[i-1].position);
+            //bodyParts[i].forward = (bodyParts[i - 1].position - bodyParts[i].position).normalized;
+            
         }
 
     }
@@ -124,9 +126,6 @@ public class sna : MonoBehaviour
 
 
     }
-    private void OnDrawGizmos()
-    {   
-        Gizmos.color = Color.green;
-    }
+   
 
 }

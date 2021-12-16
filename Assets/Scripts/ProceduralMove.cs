@@ -169,10 +169,9 @@ public class ProceduralMove : MonoBehaviour
             averageX = sumX / (legsTargets.Length);
             averageZ = sumZ / (legsTargets.Length);
             averageLegPos = new Vector3(averageX, averageY, averageZ);
-            if (isUpReallyUp)
-            {
+            
                 transform.position += (1 / smoothness) * (transform.up * Time.fixedDeltaTime * (bodyOffset - Vector3.Distance(transform.position, averageLegPos)));
-            }
+            
 
 
         }
