@@ -33,17 +33,63 @@ public class sna : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         RotateParts();
         if (Input.GetKey(KeyCode.W))
+        {
             Move();
+        }
+        else
+        {
+            EqualizeDistances();
+        }
+           
 
         if (Input.GetKeyDown(KeyCode.Q))
-            AddBodyPart();
-        if (Input.GetKeyDown(KeyCode.E))
+        {
             DelBodyPart();
+        }
+            
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+
+            AddBodyPart();
+        }
+
+        
         //transform.rotation = Quaternion.RotateTowards(transform.rotation, , step);
+    }
+    void EqualizeDistances()
+    {
+        
+        for (int i = 1; i < bodyParts.Count; i++)
+        {
+            
+            curBodyPart = bodyParts[i];
+            PrevBodyPart = bodyParts[i - 1];
+            dis = Vector3.Distance(PrevBodyPart.position, curBodyPart.position);
+            if (dis>minDistance)
+            {
+                
+
+                Vector3 newpos = PrevBodyPart.position;
+
+                //newpos.y = bodyParts[0].position.y;
+
+                float T = Time.deltaTime * dis / minDistance * speed;
+
+                if (T > 0.5f)
+                    T = 0.5f;
+                curBodyPart.position = Vector3.Lerp(curBodyPart.position, newpos, T);
+
+            }
+            
+            // curBodyPart.rotation = Quaternion.Slerp(curBodyPart.rotation, PrevBodyPart.rotation, T);
+
+
+
+        }
     }
     public void RotateParts()
     {
@@ -80,7 +126,7 @@ public class sna : MonoBehaviour
 
             Vector3 newpos = PrevBodyPart.position;
 
-            newpos.y = bodyParts[0].position.y;
+           // newpos.y = bodyParts[0].position.y;
 
             float T = Time.deltaTime * dis / minDistance * curspeed;
 
@@ -97,8 +143,17 @@ public class sna : MonoBehaviour
 
     public void AddBodyPart()
     {
+        //(bodyParts[bodyParts.Count - 1].position- bodyParts[bodyParts.Count - 2].position).normalized*minDistance
+        Transform newpart;
+        if (bodyParts.Count == 1)
+        {
+            newpart = (Instantiate(bodyprefabs, bodyParts[0].position + (-bodyParts[0].forward).normalized * minDistance/2, bodyParts[bodyParts.Count - 1].rotation) as GameObject).transform;
 
-        Transform newpart = (Instantiate(bodyprefabs, bodyParts[bodyParts.Count - 1].position, bodyParts[bodyParts.Count - 1].rotation) as GameObject).transform;
+        }
+        else
+        {
+            newpart = (Instantiate(bodyprefabs, bodyParts[bodyParts.Count-1].position+(bodyParts[bodyParts.Count - 1].position - bodyParts[bodyParts.Count - 2].position).normalized * minDistance/2, bodyParts[bodyParts.Count - 1].rotation) as GameObject).transform;
+        }
 
         newpart.SetParent(transform);
 
@@ -106,16 +161,12 @@ public class sna : MonoBehaviour
     }
     public void DelBodyPart()
     {
+             
+        GameObject elo1 = bodyParts[bodyParts.Count - 1].GetComponentInChildren<segmentMove>().legTarget1.gameObject;
+        GameObject elo2 = bodyParts[bodyParts.Count - 1].GetComponentInChildren<segmentMove>().legTarget2.gameObject;
+        Destroy(elo2);
+        Destroy(elo1);
         
-
-        
-        
-        
-        Component[] stonLegMoveScripts = bodyParts[bodyParts.Count-1].GetComponentsInChildren<stonLegMove>();
-        foreach(stonLegMove stonlegmove in stonLegMoveScripts)
-        {
-            stonlegmove.targetTransform.gameObject.GetComponent<DestroyIKTarget>().Destroy();
-        }
         Destroy(bodyParts[bodyParts.Count - 1].gameObject);
         bodyParts.RemoveAt(bodyParts.Count - 1);
 

@@ -5,10 +5,10 @@ using UnityEngine;
 public class segmentMove : MonoBehaviour
 {
     // Start is called before the first frame update
-  
-  
-  
 
+
+
+    public bool ok = false;
     float averageY;
     float averageZ;
     float averageX;
@@ -18,18 +18,18 @@ public class segmentMove : MonoBehaviour
 
     public Transform previousSegment;
 
-    public Vector3 normalVec;
+    public Vector3 normalVec = new Vector3(0,0,0);
 
     public float smoothness = 1;
 
     public float segmentOffset = 1;
-  
+
     void Awake()
     {
-        
+
         StartCoroutine(GetLegTarget());
         StartCoroutine(GetPreviousSegment());
-        
+
     }
 
 
@@ -38,26 +38,27 @@ public class segmentMove : MonoBehaviour
     {
         if (legTarget1 != null)
         {
-            //RotateToLeg();
+
+            RotateToLeg();
             MoveHeight();
         }
-        if(previousSegment != null)
+        if (previousSegment != null)
         {
             //transform.LookAt(previousSegment.position);
             //transform.forward = (previousSegment.position - transform.position).normalized;
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, previousSegment.rotation, 1 * Time.deltaTime * 50);
+            //transform.rotation = Quaternion.RotateTowards(transform.rotation, previousSegment.rotation, 10 * Time.deltaTime * 50);
         }
 
 
     }
     void RotateToLeg()
     {
-        
-        normalVec = Vector3.Cross(transform.right, legTarget1.position - legTarget2.position).normalized;
-        normalVec.y = 1;
 
-        transform.up = transform.TransformDirection(normalVec);
-        //transform.rotation = Quaternion.FromToRotation(transform.up, normalVec) * transform.rotation;
+        normalVec = Vector3.Cross(transform.right, legTarget1.position - legTarget2.position).normalized;
+
+
+       // transform.up = transform.TransformDirection(normalVec);
+        transform.rotation = Quaternion.FromToRotation(transform.up, normalVec) * transform.rotation;
     }
 
 
@@ -69,12 +70,12 @@ public class segmentMove : MonoBehaviour
         float sumX;
         float sumZ;
 
-      
-        
+
+
         sumY = legTarget1.transform.position.y + legTarget2.transform.position.y;
         sumX = legTarget1.transform.position.x + legTarget2.transform.position.x;
         sumZ = legTarget1.transform.position.z + legTarget2.transform.position.z;
-        
+
         averageY = sumY / 2;
         averageX = sumX / 2;
         averageZ = sumZ / 2;
@@ -85,8 +86,8 @@ public class segmentMove : MonoBehaviour
 
     IEnumerator GetLegTarget()
     {
-        
-        yield return new WaitUntil(() => gameObject.transform.GetChild(0).GetComponent<stonLegMove>().targetTransform!=null);
+
+        yield return new WaitUntil(() => gameObject.transform.GetChild(0).GetComponent<stonLegMove>().targetTransform != null);
         legTarget1 = gameObject.transform.GetChild(0).GetComponent<stonLegMove>().targetTransform;
         legTarget2 = gameObject.transform.GetChild(1).GetComponent<stonLegMove>().targetTransform;
     }
@@ -106,7 +107,7 @@ public class segmentMove : MonoBehaviour
                 {
                     previousSegment = parent.parent.GetChild(i - 1).GetChild(0).transform;
                 }
-                
+
             }
         }
         yield return null;

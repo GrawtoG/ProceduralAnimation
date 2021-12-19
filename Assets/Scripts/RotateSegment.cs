@@ -4,32 +4,46 @@ using UnityEngine;
 
 public class RotateSegment : MonoBehaviour
 {
-    public Transform legTarget1;
-    public Transform legTarget2;
-    public Vector3 normalVec;
-    void Awake()
-    {
-        legTarget1 = gameObject.transform.GetChild(0).GetComponent<stonLegMove>().targetTransform;
-        legTarget2 = gameObject.transform.GetChild(1).GetComponent<stonLegMove>().targetTransform;
-    }
 
+
+    public Transform previousSegment;
     // Update is called once per frame
+
+
+
+    private void Awake()
+    {
+        StartCoroutine(GetPreviousSegment());
+    }
     void Update()
     {
-        RotateToLeg();
+        if (previousSegment != null)
+        {
+            transform.LookAt(previousSegment.position);
+            //transform.forward = (previousSegment.position - transform.position).normalized;
+            //transform.rotation = Quaternion.RotateTowards(transform.rotation, previousSegment.rotation, 10 * Time.deltaTime * 50);
+        }
     }
-    void RotateToLeg()
+   
+    IEnumerator GetPreviousSegment()
     {
-        normalVec = Vector3.Cross(transform.right, legTarget1.position-legTarget2.position).normalized;
+        yield return new WaitForSeconds(0.1f);
+        Transform parent = transform.parent;
+        if(parent == null)
+        {
+            
+        }
+            
+        for (int i = 1; i < parent.childCount; i++)
+        {
+            if (parent.GetChild(i).transform == transform)
+            {
+                              
+                    previousSegment = parent.GetChild(i - 1).transform;
+                
 
-
-        transform.rotation = Quaternion.FromToRotation(transform.up, normalVec) * transform.rotation;
-
-
-    }
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.green;
-        Gizmos.DrawRay(transform.position, normalVec.normalized);
+            }
+        }
+        yield return null;
     }
 }
