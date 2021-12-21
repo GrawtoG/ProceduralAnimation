@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/cos.unity
-    guid: b73c004497aad934095409556282133d
+    path: Assets/Scenes/procedural Terrain.unity
+    guid: c3892748f63567045a029d347775d66e
   m_configObjects: {}

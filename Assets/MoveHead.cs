@@ -22,10 +22,10 @@ public class MoveHead : MonoBehaviour
     void Update()
     {
         if (moveHeight || rotatePer)
-        {        
+        {
             Physics.Raycast(transform.position + rayOffset, transform.TransformDirection(Vector3.down), out hit, maxDistFromGround);
         }
-        if(rotatePer)
+        if (rotatePer)
             RotatePerToHitNormal(hit.normal);
         if (moveHeight)
             MoveHeight();

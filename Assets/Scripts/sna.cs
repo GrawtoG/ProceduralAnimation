@@ -20,16 +20,19 @@ public class sna : MonoBehaviour
     private Transform curBodyPart;
     private Transform PrevBodyPart;
 
-
+    RaycastHit hit;
     // Start is called before the first frame update
     void Start()
     {
+        Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hit, Mathf.Infinity);
+        transform.position = hit.point+hit.normal*2;
         for (int i = 0; i < beginSize - 1; i++)
         {
 
             AddBodyPart();
 
         }
+       
     }
 
     // Update is called once per frame

@@ -14,6 +14,8 @@ public class ProceduralTerrain : MonoBehaviour
     public int xSize = 20;
     public int zSize = 20;
 
+    MeshCollider mscol;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -21,6 +23,7 @@ public class ProceduralTerrain : MonoBehaviour
         GetComponent<MeshFilter>().mesh = mesh;
         CreateShape();
         UpdateMesh();
+        
     }
 
     void CreateShape()
@@ -31,7 +34,7 @@ public class ProceduralTerrain : MonoBehaviour
         {
             for (int x = 0; x <= xSize; x++)
             {
-                float y = Mathf.PerlinNoise(x*0.1f, z*0.1f) * 2f;
+                float y = Mathf.PerlinNoise(x*0.1f, z*0.1f) * 5f;
                 vertices[i] = new Vector3(x, y, z);
                 i++;
             }
