@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/procedural Terrain.unity
+    path: Assets/Scenes/terrain/procedural Terrain.unity
     guid: c3892748f63567045a029d347775d66e
+  - enabled: 0
+    path: Assets/Scenes/WEBTEST.unity
+    guid: a000a017e7d926d43a1145d92969c0bd
   m_configObjects: {}
